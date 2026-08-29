@@ -22,3 +22,7 @@ app.listen(PORT, () => {
 const treatmentRoutes = require('./src/routes/treatmentRoutes');
 // ...
 app.use('/api/v1', treatmentRoutes);
+
+const claimRoutes = require('./src/routes/claimRoutes');
+// ...
+app.use('/api/v1', claimRoutes);
