@@ -124,7 +124,7 @@ export function PseudoQR({ payload, size = 168 }: { payload: string; size?: numb
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="mx-auto block">
       <rect x="0" y="0" width={size} height={size} fill="#ffffff" />
-      {cells.map(([x, y], i) => (
+      {cells.map(([x, y]: [number, number], i: number) => (
         <rect key={i} x={x * cell} y={y * cell} width={cell} height={cell} fill="#16211C" />
       ))}
     </svg>
