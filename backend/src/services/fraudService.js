@@ -4,14 +4,15 @@ const pool = require('../db/pool');
  * Rule 1: Duplicate claim check (+40)
  * Same worker + same facility + same day = likely duplicate submission.
  */
-async function isDuplicate(workerId, facilityId) {
+async function isDuplicate(workerId, facilityId, excludeClaimId) {
   const result = await pool.query(
     `SELECT c.claim_id FROM claims c
      JOIN treatments t ON c.treatment_id = t.treatment_id
      WHERE t.worker_id = $1 AND t.facility_id = $2
        AND t.created_at::date = CURRENT_DATE
-       AND c.status != 'Rejected'`,
-    [workerId, facilityId]
+       AND c.status != 'Rejected'
+       AND c.claim_id != $3`,
+    [workerId, facilityId, excludeClaimId]
   );
   return result.rows.length > 0;
 }
@@ -63,7 +64,7 @@ function diagnosisMatchesTreatment() {
 async function computeRiskScore(claim) {
   let score = 0;
 
-  if (await isDuplicate(claim.workerId, claim.facilityId)) score += 40;
+  if (await isDuplicate(claim.workerId, claim.facilityId, claim.claimId)) score += 40;
   if (await isCostOutlier(claim.facilityId, claim.amount)) score += 25;
   if (await isFrequencySpike(claim.facilityId)) score += 20;
   if (!diagnosisMatchesTreatment()) score += 25;
