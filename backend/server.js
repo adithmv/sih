@@ -30,3 +30,7 @@ app.use('/api/v1', claimRoutes);
 const disputeRoutes = require('./src/routes/disputeRoutes');
 // ...
 app.use('/api/v1', disputeRoutes);
+
+const workerRoutes = require('./src/routes/workerRoutes');
+// ...
+app.use('/api/v1', workerRoutes);
