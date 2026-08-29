@@ -26,3 +26,7 @@ app.use('/api/v1', treatmentRoutes);
 const claimRoutes = require('./src/routes/claimRoutes');
 // ...
 app.use('/api/v1', claimRoutes);
+
+const disputeRoutes = require('./src/routes/disputeRoutes');
+// ...
+app.use('/api/v1', disputeRoutes);
