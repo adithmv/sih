@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const pool = require('../db/pool');
 const { callAadhaarAPI, lookupABHA, createABHA, linkAawaz } = require('../services/mockExternalApis');
 const { generateWorkerId } = require('../services/idGenerator');
@@ -57,12 +58,17 @@ async function registerWorker(req, res) {
       [workerId, aadhaarHash, eshram_id, abhaId, aawazId, qrPayload]
     );
 
-    // Step 7: Return exactly the shape the frontend expects
+    
+    // Step 7: Issue a token immediately — a newly registered worker is
+    // effectively already "logged in," no separate OTP step needed.
+    const token = jwt.sign({ worker_id: workerId }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
     return res.status(201).json({
       worker_id: workerId,
       abha_id: abhaId,
       aawaz_id: aawazId,
       qr_payload: qrPayload,
+      token,
       status: 'success'
     });
   } catch (err) {
