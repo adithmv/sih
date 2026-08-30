@@ -3,7 +3,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Migrant Health & Claim ID",
-  description: "Access your migrant worker health identity and insurance claims.",
+  description:
+    "Access your migrant worker health identity and insurance claims.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

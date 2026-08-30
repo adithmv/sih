@@ -1,13 +1,252 @@
-import { AlertTriangle, BadgeCheck, CalendarDays, ChevronRight, FileText, IndianRupee } from "lucide-react";
+import {
+  AlertTriangle,
+  BadgeCheck,
+  CalendarDays,
+  ChevronRight,
+  FileText,
+  IndianRupee,
+} from "lucide-react";
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { ActionButton, PageHeading } from "./GovLayout";
 
-function useStatus(){const{t}=useI18n();return{Sent:[t("submitted"),"blue"],Checking:[t("checking"),"amber"],Approved:[t("approved"),"green"],Paid:[t("paid"),"green"],Rejected:[t("rejected"),"red"]};}
-export function ClaimsScreen({claims,loading,onBack,onOpen}){const{t,locale}=useI18n();const statusMeta=useStatus();return <section><PageHeading eyebrow={t("claimsTag")} title={t("claimsTitle")} description={t("claimsDesc")} onBack={onBack}/><div className="gov-card claims-card"><div className="table-heading"><strong>{t("claimsTitle")}</strong><span>{claims.length} {t("records")}</span></div>{loading?<div className="loading-state"><span className="spinner"/>{t("loadingClaims")}</div>:claims.length===0?<div className="empty-state"><FileText size={44}/><h2>{t("noClaims")}</h2><p>{t("noClaimsText")}</p></div>:<div className="claims-list">{claims.map((claim)=>{const amount=Number(claim.amount||0).toLocaleString(locale);const status=(statusMeta[claim.status]||[claim.status])[0];return <button key={claim.claim_id} aria-label={t("claimAria",{id:claim.claim_id,status,amount})} onClick={()=>onOpen(claim)}><span className="claim-icon"><FileText/></span><span className="claim-main"><strong>{claim.claim_id}</strong><small><CalendarDays size={15}/>{formatDate(claim.date||claim.updated_at,locale,t("dateUnavailable"))}</small></span><span className="claim-amount"><small>{t("claimAmount")}</small><strong>₹{amount}</strong></span><Status status={claim.status} meta={statusMeta}/><ChevronRight/></button>;})}</div>}</div></section>;}
+function useStatus() {
+  const { t } = useI18n();
+  return {
+    Sent: [t("submitted"), "blue"],
+    Checking: [t("checking"), "amber"],
+    Approved: [t("approved"), "green"],
+    Paid: [t("paid"), "green"],
+    Rejected: [t("rejected"), "red"],
+  };
+}
+export function ClaimsScreen({ claims, loading, onBack, onOpen }) {
+  const { t, locale } = useI18n();
+  const statusMeta = useStatus();
+  return (
+    <section>
+      <PageHeading
+        eyebrow={t("claimsTag")}
+        title={t("claimsTitle")}
+        description={t("claimsDesc")}
+        onBack={onBack}
+      />
+      <div className="gov-card claims-card">
+        <div className="table-heading">
+          <strong>{t("claimsTitle")}</strong>
+          <span>
+            {claims.length} {t("records")}
+          </span>
+        </div>
+        {loading ? (
+          <div className="loading-state">
+            <span className="spinner" />
+            {t("loadingClaims")}
+          </div>
+        ) : claims.length === 0 ? (
+          <div className="empty-state">
+            <FileText size={44} />
+            <h2>{t("noClaims")}</h2>
+            <p>{t("noClaimsText")}</p>
+          </div>
+        ) : (
+          <div className="claims-list">
+            {claims.map((claim) => {
+              const amount = Number(claim.amount || 0).toLocaleString(locale);
+              const status = (statusMeta[claim.status] || [claim.status])[0];
+              return (
+                <button
+                  key={claim.claim_id}
+                  aria-label={t("claimAria", {
+                    id: claim.claim_id,
+                    status,
+                    amount,
+                  })}
+                  onClick={() => onOpen(claim)}
+                >
+                  <span className="claim-icon">
+                    <FileText />
+                  </span>
+                  <span className="claim-main">
+                    <strong>{claim.claim_id}</strong>
+                    <small>
+                      <CalendarDays size={15} />
+                      {formatDate(
+                        claim.date || claim.updated_at,
+                        locale,
+                        t("dateUnavailable"),
+                      )}
+                    </small>
+                  </span>
+                  <span className="claim-amount">
+                    <small>{t("claimAmount")}</small>
+                    <strong>₹{amount}</strong>
+                  </span>
+                  <Status status={claim.status} meta={statusMeta} />
+                  <ChevronRight />
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
 
-export function ClaimDetailScreen({claim,onBack,onDispute}){const{t,locale}=useI18n();const meta=useStatus();const stages=["Sent","Checking","Approved","Paid"];const current=claim.status==="Rejected"?1:Math.max(0,stages.indexOf(claim.status));return <section><PageHeading eyebrow={t("claimDetails")} title={claim.claim_id} description={`${t("updated")}: ${formatDate(claim.updated_at,locale,t("dateUnavailable"))}`} onBack={onBack}/><div className="claim-detail-grid"><div className="gov-card detail-main"><div className="detail-summary"><div><span>{t("currentStatus")}</span><Status status={claim.status} meta={meta}/></div><div><span>{t("claimAmount")}</span><strong className="large-amount"><IndianRupee/>{Number(claim.amount||0).toLocaleString(locale)}</strong></div></div><h2>{t("progress")}</h2><div className="progress-steps">{stages.map((stage,index)=><div key={stage} className={index<=current&&claim.status!=="Rejected"?"done":index===current?"current":""}><i>{index<current?"✓":index+1}</i><span>{meta[stage][0]}</span></div>)}</div>{claim.status==="Rejected"&&<div className="rejection-box"><AlertTriangle/><div><strong>{t("rejectionReason")}</strong><p>{t("rejectedDefault")}</p></div></div>}</div><aside className="gov-card detail-aside"><h2>{t("availableAction")}</h2>{claim.status==="Rejected"?<><p>{t("disputeHelp")}</p><ActionButton onClick={onDispute}>{t("raiseDispute")}</ActionButton></>:<><BadgeCheck size={38}/><p>{t("noAction")}</p></>}</aside></div></section>;}
+export function ClaimDetailScreen({ claim, onBack, onDispute }) {
+  const { t, locale } = useI18n();
+  const meta = useStatus();
+  const stages = ["Sent", "Checking", "Approved", "Paid"];
+  const current =
+    claim.status === "Rejected" ? 1 : Math.max(0, stages.indexOf(claim.status));
+  return (
+    <section>
+      <PageHeading
+        eyebrow={t("claimDetails")}
+        title={claim.claim_id}
+        description={`${t("updated")}: ${formatDate(claim.updated_at, locale, t("dateUnavailable"))}`}
+        onBack={onBack}
+      />
+      <div className="claim-detail-grid">
+        <div className="gov-card detail-main">
+          <div className="detail-summary">
+            <div>
+              <span>{t("currentStatus")}</span>
+              <Status status={claim.status} meta={meta} />
+            </div>
+            <div>
+              <span>{t("claimAmount")}</span>
+              <strong className="large-amount">
+                <IndianRupee />
+                {Number(claim.amount || 0).toLocaleString(locale)}
+              </strong>
+            </div>
+          </div>
+          <h2>{t("progress")}</h2>
+          <div className="progress-steps">
+            {stages.map((stage, index) => (
+              <div
+                key={stage}
+                className={
+                  index <= current && claim.status !== "Rejected"
+                    ? "done"
+                    : index === current
+                      ? "current"
+                      : ""
+                }
+              >
+                <i>{index < current ? "✓" : index + 1}</i>
+                <span>{meta[stage][0]}</span>
+              </div>
+            ))}
+          </div>
+          {claim.status === "Rejected" && (
+            <div className="rejection-box">
+              <AlertTriangle />
+              <div>
+                <strong>{t("rejectionReason")}</strong>
+                <p>{t("rejectedDefault")}</p>
+              </div>
+            </div>
+          )}
+        </div>
+        <aside className="gov-card detail-aside">
+          <h2>{t("availableAction")}</h2>
+          {claim.status === "Rejected" ? (
+            <>
+              <p>{t("disputeHelp")}</p>
+              <ActionButton onClick={onDispute}>
+                {t("raiseDispute")}
+              </ActionButton>
+            </>
+          ) : (
+            <>
+              <BadgeCheck size={38} />
+              <p>{t("noAction")}</p>
+            </>
+          )}
+        </aside>
+      </div>
+    </section>
+  );
+}
 
-export function DisputeScreen({claim,result,loading,onBack,onSubmit}){const{t}=useI18n();const[reason,setReason]=useState("");if(result)return <section className="narrow-page"><div className="gov-card success-card"><BadgeCheck size={52}/><h1>{t("disputeSent")}</h1><p>{t("disputeSentText")}</p><div className="reference-number"><span>{t("reference")}</span><strong>{result.dispute_id}</strong></div><ActionButton onClick={onBack}>{t("returnClaim")}</ActionButton></div></section>;return <section className="narrow-page"><PageHeading eyebrow={t("grievance")} title={t("disputeTitle")} description={t("disputeDesc",{id:claim.claim_id})} onBack={onBack}/><form className="gov-card form-card" onSubmit={(e)=>{e.preventDefault();if(reason.trim().length>=10)onSubmit(reason.trim());}}><div className="rejection-box"><AlertTriangle/><div><strong>{t("rejectedClaim")}</strong><p>{t("rejectedDefault")}</p></div></div><label className="field"><span>{t("explain")} *</span><textarea rows={6} value={reason} onChange={(e)=>setReason(e.target.value)} placeholder={t("explainPlaceholder")}/><small>{t("explainHelp")}</small></label><div className="form-actions"><ActionButton type="submit" loading={loading} disabled={reason.trim().length<10}>{t("submitDispute")}</ActionButton></div></form></section>;}
-function Status({status,meta}){const[label,tone]=meta[status]||[status,"blue"];return <span className={`status-pill ${tone}`}>{label}</span>;}
-function formatDate(value,locale,fallback){if(!value)return fallback;const date=new Date(value);return Number.isNaN(date.getTime())?value:date.toLocaleDateString(locale,{day:"2-digit",month:"short",year:"numeric"});}
+export function DisputeScreen({ claim, result, loading, onBack, onSubmit }) {
+  const { t } = useI18n();
+  const [reason, setReason] = useState("");
+  if (result)
+    return (
+      <section className="narrow-page">
+        <div className="gov-card success-card">
+          <BadgeCheck size={52} />
+          <h1>{t("disputeSent")}</h1>
+          <p>{t("disputeSentText")}</p>
+          <div className="reference-number">
+            <span>{t("reference")}</span>
+            <strong>{result.dispute_id}</strong>
+          </div>
+          <ActionButton onClick={onBack}>{t("returnClaim")}</ActionButton>
+        </div>
+      </section>
+    );
+  return (
+    <section className="narrow-page">
+      <PageHeading
+        eyebrow={t("grievance")}
+        title={t("disputeTitle")}
+        description={t("disputeDesc", { id: claim.claim_id })}
+        onBack={onBack}
+      />
+      <form
+        className="gov-card form-card"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (reason.trim().length >= 10) onSubmit(reason.trim());
+        }}
+      >
+        <div className="rejection-box">
+          <AlertTriangle />
+          <div>
+            <strong>{t("rejectedClaim")}</strong>
+            <p>{t("rejectedDefault")}</p>
+          </div>
+        </div>
+        <label className="field">
+          <span>{t("explain")} *</span>
+          <textarea
+            rows={6}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder={t("explainPlaceholder")}
+          />
+          <small>{t("explainHelp")}</small>
+        </label>
+        <div className="form-actions">
+          <ActionButton
+            type="submit"
+            loading={loading}
+            disabled={reason.trim().length < 10}
+          >
+            {t("submitDispute")}
+          </ActionButton>
+        </div>
+      </form>
+    </section>
+  );
+}
+function Status({ status, meta }) {
+  const [label, tone] = meta[status] || [status, "blue"];
+  return <span className={`status-pill ${tone}`}>{label}</span>;
+}
+function formatDate(value, locale, fallback) {
+  if (!value) return fallback;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString(locale, {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+}

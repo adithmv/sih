@@ -1,25 +1,317 @@
-import { BadgeCheck, Fingerprint, HeartPulse, IdCard, LogIn, Phone, ShieldCheck, UserPlus } from "lucide-react";
+import {
+  BadgeCheck,
+  Fingerprint,
+  HeartPulse,
+  IdCard,
+  LogIn,
+  Phone,
+  ShieldCheck,
+  UserPlus,
+} from "lucide-react";
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { ActionButton, PageHeading } from "./GovLayout";
 
 export function WelcomeScreen({ onNew, onReturning }) {
   const { t } = useI18n();
-  return <><section className="welcome-panel minimal-welcome"><div className="welcome-copy"><span className="eyebrow">{t("welcomeTag")}</span><h1>{t("welcomeTitle")}</h1><p>{t("welcomeBody")}</p><div className="welcome-actions"><ActionButton onClick={onNew}><UserPlus size={21} />{t("newWorker")}</ActionButton><ActionButton secondary onClick={onReturning}><LogIn size={21} />{t("haveId")}</ActionButton></div></div><aside className="service-summary"><div className="summary-title"><ShieldCheck size={25} /><span><strong>{t("secureServices")}</strong><small>{t("onePlace")}</small></span></div><ServicePoint icon={IdCard} title={t("digitalId")} text={t("digitalDesc")} /><ServicePoint icon={HeartPulse} title={t("treatmentHelp")} text={t("treatmentDesc")} /><ServicePoint icon={BadgeCheck} title={t("claimTracking")} text={t("claimDesc")} /><div className="security-note">🔒 {t("privacy")}</div></aside></section><section className="info-strip"><Info title={t("abhaLinked")} text={t("abhaText")} /><Info title={t("aawazActive")} text={t("aawazText")} /><Info title={t("claimHelp")} text={t("claimHelpText")} /></section></>;
+  return (
+    <>
+      <section className="welcome-panel minimal-welcome">
+        <div className="welcome-copy">
+          <span className="eyebrow">{t("welcomeTag")}</span>
+          <h1>{t("welcomeTitle")}</h1>
+          <p>{t("welcomeBody")}</p>
+          <div className="welcome-actions">
+            <ActionButton onClick={onNew}>
+              <UserPlus size={21} />
+              {t("newWorker")}
+            </ActionButton>
+            <ActionButton secondary onClick={onReturning}>
+              <LogIn size={21} />
+              {t("haveId")}
+            </ActionButton>
+          </div>
+        </div>
+        <aside className="service-summary">
+          <div className="summary-title">
+            <ShieldCheck size={25} />
+            <span>
+              <strong>{t("secureServices")}</strong>
+              <small>{t("onePlace")}</small>
+            </span>
+          </div>
+          <ServicePoint
+            icon={IdCard}
+            title={t("digitalId")}
+            text={t("digitalDesc")}
+          />
+          <ServicePoint
+            icon={HeartPulse}
+            title={t("treatmentHelp")}
+            text={t("treatmentDesc")}
+          />
+          <ServicePoint
+            icon={BadgeCheck}
+            title={t("claimTracking")}
+            text={t("claimDesc")}
+          />
+          <div className="security-note">🔒 {t("privacy")}</div>
+        </aside>
+      </section>
+      <section className="info-strip">
+        <Info title={t("abhaLinked")} text={t("abhaText")} />
+        <Info title={t("aawazActive")} text={t("aawazText")} />
+        <Info title={t("claimHelp")} text={t("claimHelpText")} />
+      </section>
+    </>
+  );
 }
-function ServicePoint({ icon:Icon,title,text }) { return <div className="service-point"><span><Icon size={23} /></span><div><strong>{title}</strong><p>{text}</p></div></div>; }
-function Info({title,text}) { return <div><strong>✓ {title}</strong><span>{text}</span></div>; }
-
-export function RegistrationScreen({ onSubmit,onBack,loading }) {
-  const { t } = useI18n(); const [aadhaar,setAadhaar]=useState(""); const [eshram,setEshram]=useState(""); const [fingerprint,setFingerprint]=useState(false); const [consent,setConsent]=useState(false); const valid=/^\d{12}$/.test(aadhaar)&&eshram.trim().length>=5&&fingerprint&&consent;
-  return <section className="task-layout"><div><PageHeading eyebrow={t("registerTag")} title={t("registerTitle")} description={t("registerDesc")} onBack={onBack}/><form className="gov-card form-card" onSubmit={(e)=>{e.preventDefault();if(valid)onSubmit({aadhaar_number:aadhaar,eshram_id:eshram.trim(),biometric_hash:"biometric-captured"});}}><Step number="1" title={t("step1")} text={t("asOnCards")}/><Field label={t("aadhaar")} help={t("aadhaarHelp")}><input aria-label={t("aadhaar")} inputMode="numeric" maxLength={12} value={aadhaar} onChange={(e)=>setAadhaar(e.target.value.replace(/\D/g,""))} placeholder={t("aadhaarPlaceholder")}/></Field><Field label={t("eshram")}><input aria-label={t("eshram")} value={eshram} onChange={(e)=>setEshram(e.target.value)} placeholder={t("eshramPlaceholder")}/></Field><Step number="2" title={t("step2")} text={t("fingerHelp")}/><button type="button" className={fingerprint?"biometric captured":"biometric"} onClick={()=>setFingerprint(true)}><Fingerprint size={32}/><span><strong>{fingerprint?t("captured"):t("capture")}</strong><small>{fingerprint?t("capturedHelp"):t("placeFinger")}</small></span>{fingerprint&&<BadgeCheck/>}</button><label className="consent"><input type="checkbox" checked={consent} onChange={(e)=>setConsent(e.target.checked)}/><span>{t("consent")}</span></label><div className="form-actions"><ActionButton type="submit" loading={loading} disabled={!valid}>{t("verify")} →</ActionButton></div></form></div><HelpPanel/></section>;
+function ServicePoint({ icon: Icon, title, text }) {
+  return (
+    <div className="service-point">
+      <span>
+        <Icon size={23} />
+      </span>
+      <div>
+        <strong>{title}</strong>
+        <p>{text}</p>
+      </div>
+    </div>
+  );
+}
+function Info({ title, text }) {
+  return (
+    <div>
+      <strong>✓ {title}</strong>
+      <span>{text}</span>
+    </div>
+  );
 }
 
-export function LoginScreen({onSubmit,onBack,loading}) { const {t}=useI18n(); const [eshram,setEshram]=useState(""); const [otp,setOtp]=useState(""); const valid=eshram.trim().length>=5&&otp.length===6; const demoMode=process.env.NEXT_PUBLIC_DEMO_MODE==="true"; return <section className="task-layout"><div><PageHeading eyebrow={t("loginTag")} title={t("loginTitle")} description={t("loginDesc")} onBack={onBack}/><form className="gov-card form-card" onSubmit={(e)=>{e.preventDefault();if(valid)onSubmit({eshram_id:eshram.trim(),otp});}}><Field label={t("eshram")}><input aria-label={t("eshram")} value={eshram} onChange={(e)=>setEshram(e.target.value)} placeholder={t("eshramPlaceholder")}/></Field><Field label={t("otp")} help={t("loginHint")}><input aria-label={t("otp")} inputMode="numeric" maxLength={6} value={otp} onChange={(e)=>setOtp(e.target.value.replace(/\D/g,""))} placeholder={t("otpPlaceholder")}/></Field>{demoMode&&<div className="inline-help">🔑 {t("otpHelp")}</div>}<div className="form-actions"><ActionButton type="submit" loading={loading} disabled={!valid}>{t("signIn")} →</ActionButton></div></form></div><HelpPanel/></section>; }
+export function RegistrationScreen({ onSubmit, onBack, loading }) {
+  const { t } = useI18n();
+  const [aadhaar, setAadhaar] = useState("");
+  const [eshram, setEshram] = useState("");
+  const [fingerprint, setFingerprint] = useState(false);
+  const [consent, setConsent] = useState(false);
+  const valid =
+    /^\d{12}$/.test(aadhaar) &&
+    eshram.trim().length >= 5 &&
+    fingerprint &&
+    consent;
+  return (
+    <section className="task-layout">
+      <div>
+        <PageHeading
+          eyebrow={t("registerTag")}
+          title={t("registerTitle")}
+          description={t("registerDesc")}
+          onBack={onBack}
+        />
+        <form
+          className="gov-card form-card"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (valid)
+              onSubmit({
+                aadhaar_number: aadhaar,
+                eshram_id: eshram.trim(),
+                biometric_hash: "biometric-captured",
+              });
+          }}
+        >
+          <Step number="1" title={t("step1")} text={t("asOnCards")} />
+          <Field label={t("aadhaar")} help={t("aadhaarHelp")}>
+            <input
+              aria-label={t("aadhaar")}
+              inputMode="numeric"
+              maxLength={12}
+              value={aadhaar}
+              onChange={(e) => setAadhaar(e.target.value.replace(/\D/g, ""))}
+              placeholder={t("aadhaarPlaceholder")}
+            />
+          </Field>
+          <Field label={t("eshram")}>
+            <input
+              aria-label={t("eshram")}
+              value={eshram}
+              onChange={(e) => setEshram(e.target.value)}
+              placeholder={t("eshramPlaceholder")}
+            />
+          </Field>
+          <Step number="2" title={t("step2")} text={t("fingerHelp")} />
+          <button
+            type="button"
+            className={fingerprint ? "biometric captured" : "biometric"}
+            onClick={() => setFingerprint(true)}
+          >
+            <Fingerprint size={32} />
+            <span>
+              <strong>{fingerprint ? t("captured") : t("capture")}</strong>
+              <small>
+                {fingerprint ? t("capturedHelp") : t("placeFinger")}
+              </small>
+            </span>
+            {fingerprint && <BadgeCheck />}
+          </button>
+          <label className="consent">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+            />
+            <span>{t("consent")}</span>
+          </label>
+          <div className="form-actions">
+            <ActionButton type="submit" loading={loading} disabled={!valid}>
+              {t("verify")} →
+            </ActionButton>
+          </div>
+        </form>
+      </div>
+      <HelpPanel />
+    </section>
+  );
+}
 
-export function ConfirmationScreen({worker,onContinue}) { const {t}=useI18n(); return <section className="narrow-page"><div className="gov-card success-card"><BadgeCheck size={52}/><span className="eyebrow">{t("regDone")}</span><h1>{t("verifiedTitle")}</h1><p>{t("linkedText")}</p><div className="reference-number"><span>{t("workerId")}</span><strong>{worker?.worker_id}</strong></div><dl><div><dt>{t("abhaId")}</dt><dd>{worker?.abha_id||t("linked")}</dd></div><div><dt>{t("aawazId")}</dt><dd>{worker?.aawaz_id||t("linked")}</dd></div></dl><ActionButton onClick={onContinue}>{t("openDashboard")} →</ActionButton></div></section>; }
+export function LoginScreen({ onSubmit, onBack, loading }) {
+  const { t } = useI18n();
+  const [eshram, setEshram] = useState("");
+  const [otp, setOtp] = useState("");
+  const valid = eshram.trim().length >= 5 && otp.length === 6;
+  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+  return (
+    <section className="task-layout">
+      <div>
+        <PageHeading
+          eyebrow={t("loginTag")}
+          title={t("loginTitle")}
+          description={t("loginDesc")}
+          onBack={onBack}
+        />
+        <form
+          className="gov-card form-card"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (valid) onSubmit({ eshram_id: eshram.trim(), otp });
+          }}
+        >
+          <Field label={t("eshram")}>
+            <input
+              aria-label={t("eshram")}
+              value={eshram}
+              onChange={(e) => setEshram(e.target.value)}
+              placeholder={t("eshramPlaceholder")}
+            />
+          </Field>
+          <Field label={t("otp")} help={t("loginHint")}>
+            <input
+              aria-label={t("otp")}
+              inputMode="numeric"
+              maxLength={6}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+              placeholder={t("otpPlaceholder")}
+            />
+          </Field>
+          {demoMode && <div className="inline-help">🔑 {t("otpHelp")}</div>}
+          <div className="form-actions">
+            <ActionButton type="submit" loading={loading} disabled={!valid}>
+              {t("signIn")} →
+            </ActionButton>
+          </div>
+        </form>
+      </div>
+      <HelpPanel />
+    </section>
+  );
+}
 
-export function MessageScreen({title,text,onPrimary,onSecondary}) { const {t}=useI18n(); return <section className="narrow-page"><div className="gov-card message-card error"><ShieldCheck size={48}/><h1>{title}</h1><p>{text}</p><div className="form-actions"><ActionButton onClick={onPrimary}>{t("tryAgain")}</ActionButton><ActionButton secondary onClick={onSecondary}>{t("returnHome")}</ActionButton></div></div></section>; }
-function Step({number,title,text}) { return <div className="form-section-title"><span>{number}</span><div><strong>{title}</strong><small>{text}</small></div></div>; }
-function Field({label,help,children}) { const {t}=useI18n(); return <label className="field"><span>{label} <em>* {t("required")}</em></span>{children}{help&&<small>{help}</small>}</label>; }
-function HelpPanel(){const{t}=useI18n();return <aside className="help-panel"><strong>{t("beforeBegin")}</strong><ul><li>{t("ready1")}</li><li>{t("ready2")}</li><li>{t("ready3")}</li></ul><a href="tel:180042555214"><Phone size={19}/>{t("callHelp")}<b>1800 425 55214</b></a></aside>;}
+export function ConfirmationScreen({ worker, onContinue }) {
+  const { t } = useI18n();
+  return (
+    <section className="narrow-page">
+      <div className="gov-card success-card">
+        <BadgeCheck size={52} />
+        <span className="eyebrow">{t("regDone")}</span>
+        <h1>{t("verifiedTitle")}</h1>
+        <p>{t("linkedText")}</p>
+        <div className="reference-number">
+          <span>{t("workerId")}</span>
+          <strong>{worker?.worker_id}</strong>
+        </div>
+        <dl>
+          <div>
+            <dt>{t("abhaId")}</dt>
+            <dd>{worker?.abha_id || t("linked")}</dd>
+          </div>
+          <div>
+            <dt>{t("aawazId")}</dt>
+            <dd>{worker?.aawaz_id || t("linked")}</dd>
+          </div>
+        </dl>
+        <ActionButton onClick={onContinue}>{t("openDashboard")} →</ActionButton>
+      </div>
+    </section>
+  );
+}
+
+export function MessageScreen({ title, text, onPrimary, onSecondary }) {
+  const { t } = useI18n();
+  return (
+    <section className="narrow-page">
+      <div className="gov-card message-card error">
+        <ShieldCheck size={48} />
+        <h1>{title}</h1>
+        <p>{text}</p>
+        <div className="form-actions">
+          <ActionButton onClick={onPrimary}>{t("tryAgain")}</ActionButton>
+          <ActionButton secondary onClick={onSecondary}>
+            {t("returnHome")}
+          </ActionButton>
+        </div>
+      </div>
+    </section>
+  );
+}
+function Step({ number, title, text }) {
+  return (
+    <div className="form-section-title">
+      <span>{number}</span>
+      <div>
+        <strong>{title}</strong>
+        <small>{text}</small>
+      </div>
+    </div>
+  );
+}
+function Field({ label, help, children }) {
+  const { t } = useI18n();
+  return (
+    <label className="field">
+      <span>
+        {label} <em>* {t("required")}</em>
+      </span>
+      {children}
+      {help && <small>{help}</small>}
+    </label>
+  );
+}
+function HelpPanel() {
+  const { t } = useI18n();
+  return (
+    <aside className="help-panel">
+      <strong>{t("beforeBegin")}</strong>
+      <ul>
+        <li>{t("ready1")}</li>
+        <li>{t("ready2")}</li>
+        <li>{t("ready3")}</li>
+      </ul>
+      <a href="tel:180042555214">
+        <Phone size={19} />
+        {t("callHelp")}
+        <b>1800 425 55214</b>
+      </a>
+    </aside>
+  );
+}
