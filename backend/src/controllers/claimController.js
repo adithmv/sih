@@ -58,7 +58,7 @@ async function getPendingVerificationClaims(req, res) {
               t.facility_id, t.diagnosis, t.cost
        FROM claims c
        JOIN treatments t ON t.treatment_id = c.treatment_id
-       WHERE c.status = 'Checking'
+       WHERE c.status = 'Sent'
        ORDER BY c.created_at ASC`
     );
     return res.status(200).json({ claims: result.rows });
