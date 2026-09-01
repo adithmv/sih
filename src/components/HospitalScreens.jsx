@@ -1,6 +1,5 @@
 import {
   BadgeCheck,
-  Building2,
   ClipboardCheck,
   IndianRupee,
   Stethoscope,
@@ -13,12 +12,10 @@ export function HospitalQueueScreen({
   claims,
   loading,
   decisionClaimId,
-  worker,
   onDecision,
 }) {
   const { t, locale } = useI18n();
   // The hospital endpoint already returns only claims awaiting verification.
-  const pendingClaims = claims;
 
   return (
     <section>
@@ -34,20 +31,14 @@ export function HospitalQueueScreen({
       <div className="gov-card hospital-queue-card">
         <div className="table-heading">
           <strong>{t("pendingVerification")}</strong>
-          <span>{pendingClaims.length}</span>
+          <span>{claims.length}</span>
         </div>
-        {!worker ? (
-          <QueueEmpty
-            icon={Building2}
-            title={t("hospitalNeedsWorker")}
-            text={t("hospitalNeedsWorkerText")}
-          />
-        ) : loading ? (
+        {loading ? (
           <div className="loading-state">
             <span className="spinner" />
             {t("loadingClaims")}
           </div>
-        ) : pendingClaims.length === 0 ? (
+        ) : claims.length === 0 ? (
           <QueueEmpty
             icon={ClipboardCheck}
             title={t("hospitalQueueEmpty")}
@@ -55,7 +46,7 @@ export function HospitalQueueScreen({
           />
         ) : (
           <div className="hospital-queue-list">
-            {pendingClaims.map((claim) => {
+            {claims.map((claim) => {
               const amount = Number(
                 claim.amount ?? claim.treatment_cost ?? claim.cost ?? 0,
               ).toLocaleString(locale);
@@ -76,7 +67,7 @@ export function HospitalQueueScreen({
                   <dl>
                     <div>
                       <dt>{t("workerId")}</dt>
-                      <dd>{claim.worker_id || worker.worker_id}</dd>
+                      <dd>{claim.worker_id || t("notAvailable")}</dd>
                     </div>
                     <div>
                       <dt>{t("facility")}</dt>

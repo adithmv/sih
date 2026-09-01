@@ -23,6 +23,11 @@ import { HospitalQueueScreen } from "@/components/HospitalScreens";
 import { I18nProvider, useI18n } from "@/lib/i18n";
 import { makeRealApi } from "@/lib/api";
 
+// DEMO-ONLY: this key is a placeholder for real doctor authentication.
+// It is intentionally visible in the client bundle in this prototype's
+// static-export architecture. Do not reuse this value for anything real.
+const DOCTOR_KEY = process.env.NEXT_PUBLIC_DOCTOR_KEY;
+
 export default function MigrantHealthPortal() {
   const [language, setLanguage] = useState("en");
   return (
@@ -39,6 +44,7 @@ function Portal({ language, setLanguage }) {
   const [role, setRole] = useState("worker");
   const [worker, setWorker] = useState(null);
   const [claims, setClaims] = useState([]);
+  const [hospitalClaims, setHospitalClaims] = useState([]);
   const [activeClaim, setActiveClaim] = useState(null);
   const [pendingTreatment, setPendingTreatment] = useState(null);
   const [disputeResult, setDisputeResult] = useState(null);
@@ -104,14 +110,18 @@ function Portal({ language, setLanguage }) {
     }
   }
   async function loadHospitalClaims() {
-    if (!worker) return;
     setErrorKey("");
+    if (!DOCTOR_KEY) {
+      setErrorKey("errorDoctorConfig");
+      return;
+    }
     setLoading(true);
     try {
       const result = await api.current.getPendingVerificationClaims(
-        worker.token,
+        DOCTOR_KEY,
+        worker?.token,
       );
-      setClaims(Array.isArray(result.claims) ? result.claims : []);
+      setHospitalClaims(Array.isArray(result.claims) ? result.claims : []);
     } catch (error) {
       setErrorKey(errorFor(error, "errorHospitalQueue"));
     } finally {
@@ -123,8 +133,8 @@ function Portal({ language, setLanguage }) {
     setRole(nextRole);
     if (nextRole === "hospital") {
       void loadHospitalClaims();
-    } else if (worker && claims.length > 0) {
-      setScreen("claims");
+    } else if (worker) {
+      void loadClaims();
     }
   }
   async function openClaim(claim) {
@@ -171,13 +181,29 @@ function Portal({ language, setLanguage }) {
   async function verifyTreatment(claimId, approved) {
     if (!claimId) return;
     setErrorKey("");
+    if (!DOCTOR_KEY) {
+      setErrorKey("errorDoctorConfig");
+      return;
+    }
     setDecisionClaimId(claimId);
     try {
-      await api.current.doctorVerify(claimId, worker.token, approved);
-      const result = await api.current.getPendingVerificationClaims(
-        worker.token,
+      await api.current.doctorVerify(
+        claimId,
+        worker?.token,
+        approved,
+        DOCTOR_KEY,
       );
-      setClaims(Array.isArray(result.claims) ? result.claims : []);
+      setHospitalClaims((current) =>
+        current.filter((claim) => claim.claim_id !== claimId),
+      );
+      if (worker) {
+        const result = await api.current.getClaims(
+          worker.worker_id,
+          worker.token,
+        );
+        setClaims(Array.isArray(result.claims) ? result.claims : []);
+        setScreen("claims");
+      }
     } catch (error) {
       setErrorKey(errorFor(error, "errorVerify"));
     } finally {
@@ -320,10 +346,9 @@ function Portal({ language, setLanguage }) {
   if (role === "hospital") {
     content = (
       <HospitalQueueScreen
-        claims={claims}
+        claims={hospitalClaims}
         loading={loading}
         decisionClaimId={decisionClaimId}
-        worker={worker}
         onDecision={verifyTreatment}
       />
     );

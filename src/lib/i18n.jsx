@@ -202,6 +202,7 @@ const copy = {
     rejectClaimAria: "Reject claim {id}",
     openHospitalView: "Open Hospital Staff View",
     errorHospitalQueue: "The hospital queue could not be loaded. Try again.",
+    errorDoctorConfig: "The hospital demo key is not configured yet.",
   },
   hi: {
     govt: "केरल सरकार",
@@ -401,6 +402,7 @@ const copy = {
     rejectClaimAria: "क्लेम {id} नामंजूर करें",
     openHospitalView: "अस्पताल कर्मचारी दृश्य खोलें",
     errorHospitalQueue: "अस्पताल सूची लोड नहीं हुई। फिर कोशिश करें।",
+    errorDoctorConfig: "अस्पताल की डेमो कुंजी अभी कॉन्फ़िगर नहीं है।",
   },
   ml: {
     govt: "കേരള സർക്കാർ",
@@ -600,6 +602,7 @@ const copy = {
     rejectClaimAria: "ക്ലെയിം {id} നിരസിക്കുക",
     openHospitalView: "ആശുപത്രി ജീവനക്കാരുടെ കാഴ്ച തുറക്കുക",
     errorHospitalQueue: "ആശുപത്രി പട്ടിക ലഭിച്ചില്ല. വീണ്ടും ശ്രമിക്കുക.",
+    errorDoctorConfig: "ആശുപത്രിയുടെ ഡെമോ കീ ഇതുവരെ ക്രമീകരിച്ചിട്ടില്ല.",
   },
   bn: {
     govt: "কেরালা সরকার",
@@ -798,6 +801,7 @@ const copy = {
     rejectClaimAria: "ক্লেম {id} নামঞ্জুর করুন",
     openHospitalView: "হাসপাতাল কর্মী দৃশ্য খুলুন",
     errorHospitalQueue: "হাসপাতালের তালিকা লোড হয়নি। আবার চেষ্টা করুন।",
+    errorDoctorConfig: "হাসপাতালের ডেমো কী এখনও কনফিগার করা নেই।",
   },
 };
 
