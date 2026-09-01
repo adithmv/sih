@@ -12,10 +12,7 @@ async function logAudit(claimId, actor, action) {
 // Simulates a government doctor reviewing a non-ABHA-clinic claim and
 // digitally signing it (or rejecting it). Real version: this would be
 // triggered from the Admin Portal by an authenticated doctor account,
-// per your architecture doc's onDoctorDecision(). Prototype simplification:
-// no separate doctor auth role yet — any caller with a valid worker token
-// can trigger this, which is fine for demo purposes but would need a
-// doctor/admin role check in production.
+// per your architecture doc's onDoctorDecision().
 async function doctorVerify(req, res) {
   const { claim_id } = req.params;
   const { approved = true } = req.body;

@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const pool = require('../db/pool');
 
-const DEMO_OTP = '123456'; // Hardcoded for prototype demo — see note below
+// Prototype simplification: fixed demo OTP; production must issue expiring per-user OTPs.
+const DEMO_OTP = '123456';
 
 async function login(req, res) {
   const { eshram_id, otp } = req.body;

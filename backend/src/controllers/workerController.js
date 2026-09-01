@@ -3,11 +3,15 @@ const pool = require('../db/pool');
 async function getWorkerProfile(req, res) {
   const { worker_id } = req.params;
 
+  if (worker_id !== req.workerId) {
+    return res.status(403).json({ status: 'error', message: 'Forbidden' });
+  }
+
   try {
-const result = await pool.query(
-  'SELECT worker_id, name, qr_payload, language_pref AS language, abha_id, aawaz_id FROM workers WHERE worker_id = $1',
-  [worker_id]
-);
+    const result = await pool.query(
+      'SELECT worker_id, name, qr_payload, language_pref AS language, abha_id, aawaz_id FROM workers WHERE worker_id = $1',
+      [worker_id]
+    );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ status: 'error', message: 'Worker not found' });

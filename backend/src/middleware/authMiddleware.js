@@ -18,4 +18,13 @@ function verifyToken(req, res, next) {
   }
 }
 
-module.exports = { verifyToken };
+// Demo-only placeholder for real doctor-account authentication in production.
+function verifyDoctorToken(req, res, next) {
+  if (!process.env.DOCTOR_TOKEN || req.get('X-Doctor-Key') !== process.env.DOCTOR_TOKEN) {
+    return res.status(403).json({ status: 'error', message: 'Forbidden' });
+  }
+
+  next();
+}
+
+module.exports = { verifyToken, verifyDoctorToken };
