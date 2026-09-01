@@ -72,12 +72,12 @@ export function makeRealApi() {
         token,
       });
     },
-    doctorVerify(claim_id, token) {
+    doctorVerify(claim_id, token, approved) {
       return request(
         `/api/v1/claims/${encodeURIComponent(claim_id)}/doctor-verify`,
         {
           method: "POST",
-          body: { approved: true },
+          body: { approved },
           token,
         },
       );

@@ -19,6 +19,7 @@ import {
   ClaimsScreen,
   DisputeScreen,
 } from "@/components/ClaimScreens";
+import { HospitalQueueScreen } from "@/components/HospitalScreens";
 import { I18nProvider, useI18n } from "@/lib/i18n";
 import { makeRealApi } from "@/lib/api";
 
@@ -35,12 +36,14 @@ function Portal({ language, setLanguage }) {
   const { t } = useI18n();
   const api = useRef(makeRealApi());
   const [screen, setScreen] = useState("welcome");
+  const [role, setRole] = useState("worker");
   const [worker, setWorker] = useState(null);
   const [claims, setClaims] = useState([]);
   const [activeClaim, setActiveClaim] = useState(null);
   const [pendingTreatment, setPendingTreatment] = useState(null);
   const [disputeResult, setDisputeResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [decisionClaimId, setDecisionClaimId] = useState("");
   const [errorKey, setErrorKey] = useState("");
   const go = (next) => {
     setErrorKey("");
@@ -100,6 +103,31 @@ function Portal({ language, setLanguage }) {
       setLoading(false);
     }
   }
+  async function loadHospitalClaims() {
+    if (!worker) return;
+    setErrorKey("");
+    setLoading(true);
+    try {
+      const result = await api.current.getClaims(
+        worker.worker_id,
+        worker.token,
+      );
+      setClaims(Array.isArray(result.claims) ? result.claims : []);
+    } catch (error) {
+      setErrorKey(errorFor(error, "errorHospitalQueue"));
+    } finally {
+      setLoading(false);
+    }
+  }
+  function changeRole(nextRole) {
+    setErrorKey("");
+    setRole(nextRole);
+    if (nextRole === "hospital") {
+      void loadHospitalClaims();
+    } else if (worker && claims.length > 0) {
+      setScreen("claims");
+    }
+  }
   async function openClaim(claim) {
     setErrorKey("");
     setLoading(true);
@@ -141,17 +169,22 @@ function Portal({ language, setLanguage }) {
       setLoading(false);
     }
   }
-  async function verifyTreatment() {
-    if (!pendingTreatment?.claim_id) return;
+  async function verifyTreatment(claimId, approved) {
+    if (!claimId) return;
     setErrorKey("");
-    setLoading(true);
+    setDecisionClaimId(claimId);
     try {
-      await api.current.doctorVerify(pendingTreatment.claim_id, worker.token);
-      await loadClaims();
+      await api.current.doctorVerify(claimId, worker.token, approved);
+      const result = await api.current.getClaims(
+        worker.worker_id,
+        worker.token,
+      );
+      setClaims(Array.isArray(result.claims) ? result.claims : []);
+      setScreen("claims");
     } catch (error) {
       setErrorKey(errorFor(error, "errorVerify"));
     } finally {
-      setLoading(false);
+      setDecisionClaimId("");
     }
   }
   async function submitDispute(reason) {
@@ -242,8 +275,7 @@ function Portal({ language, setLanguage }) {
         <ReferralScreen
           hospital={pendingTreatment?.hospital}
           onBack={() => go("digital-id")}
-          onVerify={verifyTreatment}
-          loading={loading}
+          onOpenHospital={() => changeRole("hospital")}
         />
       );
       break;
@@ -288,10 +320,23 @@ function Portal({ language, setLanguage }) {
         />
       );
   }
+  if (role === "hospital") {
+    content = (
+      <HospitalQueueScreen
+        claims={claims}
+        loading={loading}
+        decisionClaimId={decisionClaimId}
+        worker={worker}
+        onDecision={verifyTreatment}
+      />
+    );
+  }
   return (
     <GovLayout
       language={language}
       setLanguage={setLanguage}
+      role={role}
+      onRoleChange={changeRole}
       error={errorKey ? t(errorKey) : ""}
       clearError={() => setErrorKey("")}
       onHome={() => go(worker ? "dashboard" : "welcome")}

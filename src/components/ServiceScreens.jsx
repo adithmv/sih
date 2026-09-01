@@ -246,7 +246,7 @@ function PseudoQR({ payload }) {
   );
 }
 
-export function ReferralScreen({ hospital, onVerify, loading, onBack }) {
+export function ReferralScreen({ hospital, onOpenHospital, onBack }) {
   const { t } = useI18n();
   return (
     <section>
@@ -279,9 +279,9 @@ export function ReferralScreen({ hospital, onVerify, loading, onBack }) {
             <li>{t("hospital2")}</li>
             <li>{t("hospital3")}</li>
           </ol>
-          <ActionButton loading={loading} onClick={onVerify}>
+          <ActionButton onClick={onOpenHospital}>
             <BadgeCheck size={21} />
-            {t("doctorVerify")}
+            {t("openHospitalView")}
           </ActionButton>
         </aside>
       </div>

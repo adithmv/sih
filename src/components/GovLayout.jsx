@@ -5,13 +5,15 @@ export function GovLayout({
   children,
   language,
   setLanguage,
+  role,
+  onRoleChange,
   error,
   clearError,
   onHome,
 }) {
   const { t } = useI18n();
   return (
-    <div className="gov-site">
+    <div className={`gov-site role-${role}`}>
       <a className="skip-link" href="#main-content">
         {t("skip")}
       </a>
@@ -33,6 +35,24 @@ export function GovLayout({
               <span>{t("appTag")}</span>
             </span>
           </button>
+          <div className="role-switcher" aria-label={t("viewSwitcher")}>
+            <button
+              type="button"
+              className={role === "worker" ? "active" : ""}
+              aria-pressed={role === "worker"}
+              onClick={() => onRoleChange("worker")}
+            >
+              {t("workerView")}
+            </button>
+            <button
+              type="button"
+              className={role === "hospital" ? "active" : ""}
+              aria-pressed={role === "hospital"}
+              onClick={() => onRoleChange("hospital")}
+            >
+              {t("hospitalView")}
+            </button>
+          </div>
           <a className="header-help" href="tel:180042555214">
             <Phone size={19} />
             <span>
