@@ -26,7 +26,8 @@ import { makeRealApi } from "@/lib/api";
 // DEMO-ONLY: this key is a placeholder for real doctor authentication.
 // It is intentionally visible in the client bundle in this prototype's
 // static-export architecture. Do not reuse this value for anything real.
-const DOCTOR_KEY = process.env.NEXT_PUBLIC_DOCTOR_KEY;
+const DOCTOR_KEY =
+  process.env.NEXT_PUBLIC_DOCTOR_KEY || process.env.NEXT_PUBLIC_DOCTOR_TOKEN;
 
 export default function MigrantHealthPortal() {
   const [language, setLanguage] = useState("en");
