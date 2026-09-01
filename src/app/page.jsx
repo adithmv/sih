@@ -50,7 +50,7 @@ function Portal({ language, setLanguage }) {
     setScreen(next);
   };
   const errorFor = (error, fallback) =>
-    error instanceof Error && error.message.includes("NEXT_PUBLIC_API_URL")
+    error instanceof Error && error.message.includes("NEXT_PUBLIC_")
       ? "errorConfig"
       : fallback;
   async function register(payload) {
@@ -108,8 +108,7 @@ function Portal({ language, setLanguage }) {
     setErrorKey("");
     setLoading(true);
     try {
-      const result = await api.current.getClaims(
-        worker.worker_id,
+      const result = await api.current.getPendingVerificationClaims(
         worker.token,
       );
       setClaims(Array.isArray(result.claims) ? result.claims : []);
@@ -175,12 +174,10 @@ function Portal({ language, setLanguage }) {
     setDecisionClaimId(claimId);
     try {
       await api.current.doctorVerify(claimId, worker.token, approved);
-      const result = await api.current.getClaims(
-        worker.worker_id,
+      const result = await api.current.getPendingVerificationClaims(
         worker.token,
       );
       setClaims(Array.isArray(result.claims) ? result.claims : []);
-      setScreen("claims");
     } catch (error) {
       setErrorKey(errorFor(error, "errorVerify"));
     } finally {

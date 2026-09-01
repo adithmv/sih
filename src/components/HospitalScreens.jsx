@@ -9,13 +9,6 @@ import {
 import { useI18n } from "@/lib/i18n";
 import { ActionButton, PageHeading } from "./GovLayout";
 
-const pendingStatuses = new Set([
-  "checking",
-  "pending",
-  "pending verification",
-  "pending_verification",
-]);
-
 export function HospitalQueueScreen({
   claims,
   loading,
@@ -24,9 +17,8 @@ export function HospitalQueueScreen({
   onDecision,
 }) {
   const { t, locale } = useI18n();
-  const pendingClaims = claims.filter((claim) =>
-    pendingStatuses.has(String(claim.status || "").toLowerCase()),
-  );
+  // The hospital endpoint already returns only claims awaiting verification.
+  const pendingClaims = claims;
 
   return (
     <section>

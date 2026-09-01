@@ -1,14 +1,24 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+const DOCTOR_TOKEN = process.env.NEXT_PUBLIC_DOCTOR_TOKEN;
 
-async function request(path, { method = "GET", body, token } = {}) {
+async function request(
+  path,
+  { method = "GET", body, token, doctor = false } = {},
+) {
   if (!API_BASE) {
     throw new Error(
       "The API URL is not configured. Set NEXT_PUBLIC_API_URL before building the app.",
     );
   }
+  if (doctor && !DOCTOR_TOKEN) {
+    throw new Error(
+      "Doctor access is not configured. Set NEXT_PUBLIC_DOCTOR_TOKEN before building the app.",
+    );
+  }
 
   const headers = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (doctor) headers["X-Doctor-Key"] = DOCTOR_TOKEN;
 
   let res;
   try {
@@ -60,6 +70,12 @@ export function makeRealApi() {
         token,
       });
     },
+    getPendingVerificationClaims(token) {
+      return request("/api/v1/claims/pending-verification", {
+        token,
+        doctor: true,
+      });
+    },
     getClaimStatus(claim_id, token) {
       return request(`/api/v1/claims/${encodeURIComponent(claim_id)}/status`, {
         token,
@@ -79,6 +95,7 @@ export function makeRealApi() {
           method: "POST",
           body: { approved },
           token,
+          doctor: true,
         },
       );
     },
